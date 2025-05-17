@@ -1,7 +1,7 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Birthday, BirthdayDocument } from './schemas/birthday.schema';
+import { Birthday } from './schemas/birthday.schema';
 import { CreateBirthdayDto } from './dto/create-birthday.dto';
 import { UpdateBirthdayDto } from './dto/update-birthday.dto';
 
@@ -9,7 +9,9 @@ import { UpdateBirthdayDto } from './dto/update-birthday.dto';
 export class BirthdayService {
   private readonly logger = new Logger(BirthdayService.name);
 
-  constructor(@InjectModel(Birthday.name) private birthdayModel: Model<Birthday>) {}
+  constructor(
+    @InjectModel(Birthday.name) private birthdayModel: Model<Birthday>,
+  ) {}
 
   async create(createBirthdayDto: CreateBirthdayDto): Promise<Birthday> {
     try {
@@ -18,17 +20,34 @@ export class BirthdayService {
     } catch (error) {
       if (error.code === 11000) {
         // Error de clave duplicada (userId único)
-        throw new HttpException('El usuario ya tiene un cumpleaños registrado', HttpStatus.CONFLICT);
+        throw new HttpException(
+          'El usuario ya tiene un cumpleaños registrado',
+          HttpStatus.CONFLICT,
+        );
       }
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async findAll(guildId: string, page: number = 1): Promise<{ birthdays: Birthday[]; totalBirthdays: number; totalPages: number; currentPage: number }> {
+  async findAll(
+    guildId: string,
+    page: number = 1,
+  ): Promise<{
+    birthdays: Birthday[];
+    totalBirthdays: number;
+    totalPages: number;
+    currentPage: number;
+  }> {
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
-    const births = this.birthdayModel.find({guildId}).limit(pageSize).skip(skip).exec();
-    const totalBirthdays = await this.birthdayModel.countDocuments({ guildId }).exec();
+    const births = this.birthdayModel
+      .find({ guildId })
+      .limit(pageSize)
+      .skip(skip)
+      .exec();
+    const totalBirthdays = await this.birthdayModel
+      .countDocuments({ guildId })
+      .exec();
     const totalPages = Math.ceil(totalBirthdays / pageSize);
     return {
       birthdays: await births,
@@ -56,7 +75,10 @@ export class BirthdayService {
       return updated;
     } catch (error) {
       if (error.code === 11000) {
-        throw new HttpException('Datos duplicados al actualizar', HttpStatus.CONFLICT);
+        throw new HttpException(
+          'Datos duplicados al actualizar',
+          HttpStatus.CONFLICT,
+        );
       }
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -64,7 +86,9 @@ export class BirthdayService {
 
   async remove(userId: string): Promise<Birthday | null> {
     try {
-      const deleted = await this.birthdayModel.findOneAndDelete({ userId }).exec();
+      const deleted = await this.birthdayModel
+        .findOneAndDelete({ userId })
+        .exec();
       if (!deleted) {
         throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
       }

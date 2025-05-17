@@ -4,15 +4,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-console.log('Starting application...');
+import * as fs from 'fs';
 
 async function bootstrap() {
-  console.log('Starting application...');
-  
   const app = await NestFactory.create(AppModule);
-  console.log('Application created...');
-  
-
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
@@ -44,6 +39,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  fs.writeFileSync('./swagger.json', JSON.stringify(document));
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
@@ -55,6 +51,8 @@ async function bootstrap() {
 
   await app.listen(port);
   console.log(`Application running on: http://localhost:${port}`);
-  console.log(`Swagger documentation available at: http://localhost:${port}/api`);
+  console.log(
+    `Swagger documentation available at: http://localhost:${port}/api`,
+  );
 }
 bootstrap();
