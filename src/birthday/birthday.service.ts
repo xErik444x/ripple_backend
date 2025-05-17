@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Birthday, BirthdayDocument } from './schemas/birthday.schema';
@@ -9,15 +9,33 @@ import { UpdateBirthdayDto } from './dto/update-birthday.dto';
 export class BirthdayService {
   private readonly logger = new Logger(BirthdayService.name);
 
-  constructor(@InjectModel(Birthday.name) private birthdayModel: Model<BirthdayDocument>) {}
+  constructor(@InjectModel(Birthday.name) private birthdayModel: Model<Birthday>) {}
 
   async create(createBirthdayDto: CreateBirthdayDto): Promise<Birthday> {
-    const newBirthday = new this.birthdayModel(createBirthdayDto);
-    return newBirthday.save();
+    try {
+      const newBirthday = new this.birthdayModel(createBirthdayDto);
+      return await newBirthday.save();
+    } catch (error) {
+      if (error.code === 11000) {
+        // Error de clave duplicada (userId único)
+        throw new HttpException('El usuario ya tiene un cumpleaños registrado', HttpStatus.CONFLICT);
+      }
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  async findAll(): Promise<Birthday[]> {
-    return this.birthdayModel.find().exec();
+  async findAll(guildId: string, page: number = 1): Promise<{ birthdays: Birthday[]; totalBirthdays: number; totalPages: number; currentPage: number }> {
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+    const births = this.birthdayModel.find({guildId}).limit(pageSize).skip(skip).exec();
+    const totalBirthdays = await this.birthdayModel.countDocuments({ guildId }).exec();
+    const totalPages = Math.ceil(totalBirthdays / pageSize);
+    return {
+      birthdays: await births,
+      totalBirthdays,
+      totalPages,
+      currentPage: +page,
+    };
   }
 
   async findByUserId(userId: string): Promise<Birthday | null> {
@@ -28,13 +46,32 @@ export class BirthdayService {
     userId: string,
     updateBirthdayDto: UpdateBirthdayDto,
   ): Promise<Birthday | null> {
-    return this.birthdayModel
-      .findOneAndUpdate({ userId }, updateBirthdayDto, { new: true })
-      .exec();
+    try {
+      const updated = await this.birthdayModel
+        .findOneAndUpdate({ userId }, updateBirthdayDto, { new: true })
+        .exec();
+      if (!updated) {
+        throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+      }
+      return updated;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new HttpException('Datos duplicados al actualizar', HttpStatus.CONFLICT);
+      }
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async remove(userId: string): Promise<Birthday | null> {
-    return this.birthdayModel.findOneAndDelete({ userId }).exec();
+    try {
+      const deleted = await this.birthdayModel.findOneAndDelete({ userId }).exec();
+      if (!deleted) {
+        throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+      }
+      return deleted;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async getUpcomingBirthdays(guildId: string): Promise<Birthday[]> {

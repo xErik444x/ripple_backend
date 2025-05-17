@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsDate, IsBoolean, IsOptional } from "class-validator"
+import { IsNotEmpty, IsString, IsDate, IsBoolean, IsOptional, IsDateString } from "class-validator"
 import { ApiProperty } from "@nestjs/swagger"
 
 export class CreateBirthdayDto {
@@ -31,7 +31,7 @@ export class CreateBirthdayDto {
     example: "2000-01-01T00:00:00.000Z",
   })
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   birthDate: Date
 
   @ApiProperty({

@@ -10,7 +10,7 @@ export class Birthday {
     description: "ID del usuario de Discord",
     example: "123456789012345678",
   })
-  @Prop({ required: true })
+  @Prop({ required: true})
   userId: string
 
   @ApiProperty({
@@ -44,3 +44,12 @@ export class Birthday {
 }
 
 export const BirthdaySchema = SchemaFactory.createForClass(Birthday)
+
+// Asegura el índice único en userId y guildId (compuesto)
+BirthdaySchema.index({ userId: 1, guildId: 1 }, { unique: true })
+
+// Índice para búsquedas por guildId
+BirthdaySchema.index({ guildId: 1 })
+
+// Índice compuesto para búsquedas por guildId y birthDate
+BirthdaySchema.index({ guildId: 1, birthDate: 1 })

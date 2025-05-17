@@ -4,6 +4,7 @@ import { CreateBirthdayDto } from "./dto/create-birthday.dto"
 import { UpdateBirthdayDto } from "./dto/update-birthday.dto"
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from "@nestjs/swagger"
 import { Birthday } from "./schemas/birthday.schema"
+import { query } from "express"
 
 @ApiTags("birthdays")
 @Controller("birthdays")
@@ -17,6 +18,7 @@ export class BirthdayController {
   @ApiResponse({ status: 400, description: "Datos inválidos" })
   @ApiResponse({ status: 401, description: "No autorizado - API Key inválida" })
   @ApiResponse({ status: 403, description: "Prohibido - IP no autorizada" })
+  @ApiResponse({ status: 500, description: "Ese usuario ya existe" })
   @Post()
   create(@Body() createBirthdayDto: CreateBirthdayDto) {
     return this.birthdayService.create(createBirthdayDto);
@@ -24,11 +26,16 @@ export class BirthdayController {
 
   @Get()
   @ApiOperation({ summary: "Obtener todos los cumpleaños" })
+  @ApiQuery({ name: "guildId", description: "ID del servidor de Discord" })
+  @ApiQuery({ name: "page", required: false, description: "Número de página para paginación", type: Number })
   @ApiResponse({ status: 200, description: "Lista de cumpleaños", type: [Birthday] })
   @ApiResponse({ status: 401, description: "No autorizado - API Key inválida" })
   @ApiResponse({ status: 403, description: "Prohibido - IP no autorizada" })
-  findAll() {
-    return this.birthdayService.findAll()
+  findAll(
+    @Query("guildId") guildId: string,
+    @Query("page") page?: number
+  ) {
+    return this.birthdayService.findAll(guildId, page);
   }
 
   @Get("upcoming")
