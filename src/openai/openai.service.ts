@@ -5,8 +5,7 @@ import { Model } from 'mongoose';
 import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { GuildAIConfig } from './schemas/guild-ai-config.schema';
-import { UpdateAIConfigDto } from './dto/update-ai-config.dto';
-import { GuildAIConfigDocument } from './schemas/guild-ai-config.schema';
+import { UpdateAIConfigDto } from './dto/openai.dto';
 
 @Injectable()
 export class OpenaiService {
@@ -15,7 +14,7 @@ export class OpenaiService {
   constructor(
     private readonly configService: ConfigService,
     @InjectModel(GuildAIConfig.name)
-    private guildAIConfigModel: Model<GuildAIConfigDocument>,
+    private guildAIConfigModel: Model<GuildAIConfig>,
   ) {}
 
   async generateResponse(
@@ -37,7 +36,7 @@ export class OpenaiService {
 
       let finalPrompt = prompt;
       let systemPrompt = '';
-      let modelName = 'gpt-4o';
+      let modelName = 'gpt-4.1-mini';
       let temperature = 0.7;
 
       if (guildId) {
