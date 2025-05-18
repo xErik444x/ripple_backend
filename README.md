@@ -1,6 +1,6 @@
 # Ripple Backend
 
-[![Calidad de Código y Seguridad](https://github.com/xErik444x/ripple_backend/actions/workflows/code-check.yml/badge.svg)](https://github.com/xErik444x/ripple_backend/actions/workflows/code-check.yml)
+[![Code Quality & Security](https://github.com/xErik444x/ripple_backend/actions/workflows/code-check.yml/badge.svg?event=push)](https://github.com/xErik444x/ripple_backend/actions/workflows/code-check.yml) [![Build Check](https://github.com/xErik444x/ripple_backend/actions/workflows/build-check.yml/badge.svg?event=push)](https://github.com/xErik444x/ripple_backend/actions/workflows/build-check.yml)
 
 ## ¿Qué es Ripple Backend?
 
