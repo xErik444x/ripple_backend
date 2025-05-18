@@ -37,7 +37,7 @@ import { RequestLoggerInterceptor } from './common/interceptors/logging.intercep
     {
       provide: APP_INTERCEPTOR,
       useClass: RequestLoggerInterceptor,
-    }
+    },
   ],
 })
 export class AppModule implements NestModule {

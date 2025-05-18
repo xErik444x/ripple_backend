@@ -18,14 +18,17 @@ export class BirthdayService {
       const newBirthday = new this.birthdayModel(createBirthdayDto);
       return await newBirthday.save();
     } catch (error) {
-      if (error.code === 11000) {
+      if ((error as { code: number }).code === 11000) {
         // Error de clave duplicada (userId único)
         throw new HttpException(
           'El usuario ya tiene un cumpleaños registrado',
           HttpStatus.CONFLICT,
         );
       }
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -74,13 +77,16 @@ export class BirthdayService {
       }
       return updated;
     } catch (error) {
-      if (error.code === 11000) {
+      if ((error as { code: number }).code === 11000) {
         throw new HttpException(
           'Datos duplicados al actualizar',
           HttpStatus.CONFLICT,
         );
       }
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -94,7 +100,10 @@ export class BirthdayService {
       }
       return deleted;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

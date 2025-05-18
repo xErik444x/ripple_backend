@@ -81,7 +81,7 @@ export class OpenaiService {
       return text;
     } catch (error) {
       this.logger.error(
-        `Error al generar respuesta de OpenAI: ${error.message}`,
+        `Error al generar respuesta de OpenAI: ${(error as Error).message}`,
       );
       throw error;
     }

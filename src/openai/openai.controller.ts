@@ -53,7 +53,7 @@ export class OpenaiController {
       return { response };
     } catch (error) {
       throw new HttpException(
-        error.message || 'Error al generar respuesta',
+        (error as Error).message || 'Error al generar respuesta',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -76,7 +76,7 @@ export class OpenaiController {
       return config;
     } catch (error) {
       throw new HttpException(
-        error.message || 'Error al obtener configuración',
+        (error as Error).message || 'Error al obtener configuración',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -106,7 +106,7 @@ export class OpenaiController {
       return updatedConfig;
     } catch (error) {
       throw new HttpException(
-        error.message || 'Error al actualizar configuración',
+        (error as Error).message || 'Error al actualizar configuración',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

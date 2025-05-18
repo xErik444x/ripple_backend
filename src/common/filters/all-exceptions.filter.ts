@@ -14,7 +14,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status =
+    const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -25,8 +25,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
         : 'Internal server error';
 
     // Si el mensaje es un objeto, extrae el mensaje real
-    if (typeof message === 'object' && message !== null && 'message' in message) {
-      message = (message as any).message;
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'message' in message
+    ) {
+      message = (message as { message: string }).message;
     }
 
     response.status(status).json({
