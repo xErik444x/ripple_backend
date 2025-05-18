@@ -50,7 +50,7 @@ git clone https://github.com/xErik444x/ripple_backend.git
 cd ripple_backend
 
 # Instalá las dependencias
-npm install
+npm ci
 ```
 
 ## Configuración
